@@ -4,12 +4,14 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import nl.beyondautocomplete.lexicon.DomainEvent;
 import nl.beyondautocomplete.lexicon.EventStore;
+import nl.beyondautocomplete.lexicon.OptimisticConcurrencyException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
@@ -32,7 +34,7 @@ public class JpaEventStoreTest {
 
         eventStore.append(aggregateId, "Order", List.of(
                 new OrderPlaced("SKU-1"),
-                new ItemAdded("SKU-2", 3)));
+                new ItemAdded("SKU-2", 3)), 0);
 
         var events = eventStore.load(aggregateId, "Order");
 
@@ -43,8 +45,8 @@ public class JpaEventStoreTest {
     void appendsNewEventsAfterExistingOnesForTheSameAggregate() {
         var aggregateId = UUID.randomUUID().toString();
 
-        eventStore.append(aggregateId, "Order", List.of(new OrderPlaced("SKU-1")));
-        eventStore.append(aggregateId, "Order", List.of(new ItemAdded("SKU-2", 1)));
+        eventStore.append(aggregateId, "Order", List.of(new OrderPlaced("SKU-1")), 0);
+        eventStore.append(aggregateId, "Order", List.of(new ItemAdded("SKU-2", 1)), 1);
 
         var events = eventStore.load(aggregateId, "Order");
 
@@ -56,8 +58,8 @@ public class JpaEventStoreTest {
         var firstAggregateId = UUID.randomUUID().toString();
         var secondAggregateId = UUID.randomUUID().toString();
 
-        eventStore.append(firstAggregateId, "Order", List.of(new OrderPlaced("A")));
-        eventStore.append(secondAggregateId, "Order", List.of(new OrderPlaced("B"), new ItemAdded("C", 2)));
+        eventStore.append(firstAggregateId, "Order", List.of(new OrderPlaced("A")), 0);
+        eventStore.append(secondAggregateId, "Order", List.of(new OrderPlaced("B"), new ItemAdded("C", 2)), 0);
 
         assertEquals(List.of(new OrderPlaced("A")), eventStore.load(firstAggregateId, "Order"));
         assertEquals(List.of(new OrderPlaced("B"), new ItemAdded("C", 2)), eventStore.load(secondAggregateId, "Order"));
@@ -66,5 +68,15 @@ public class JpaEventStoreTest {
     @Test
     void returnsEmptyListForUnknownAggregate() {
         assertTrue(eventStore.load(UUID.randomUUID().toString(), "Order").isEmpty());
+    }
+
+    @Test
+    void appendThrowsOptimisticConcurrencyExceptionWhenExpectedVersionIsStale() {
+        var aggregateId = UUID.randomUUID().toString();
+
+        eventStore.append(aggregateId, "Order", List.of(new OrderPlaced("SKU-1")), 0);
+
+        assertThrows(OptimisticConcurrencyException.class,
+                () -> eventStore.append(aggregateId, "Order", List.of(new ItemAdded("SKU-2", 1)), 0));
     }
 }

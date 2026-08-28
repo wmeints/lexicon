@@ -22,8 +22,15 @@ public class JpaEventStore implements EventStore {
 
     @Override
     @Transactional(Transactional.TxType.REQUIRED)
-    public void append(String aggregateId, String aggregateType, List<Object> domainEvents) {
+    public void append(String aggregateId, String aggregateType, List<Object> domainEvents, long expectedVersion) {
         var recordVersion = EventRecord.nextVersion(aggregateType, aggregateId);
+        var currentVersion = recordVersion - 1;
+
+        if (currentVersion != expectedVersion) {
+            throw new OptimisticConcurrencyException(
+                    "Expected version " + expectedVersion + " for aggregate " + aggregateType + "/" + aggregateId +
+                            " but the event store has version " + currentVersion);
+        }
 
         for(var domainEvent : domainEvents) {
             var record = new EventRecord();
