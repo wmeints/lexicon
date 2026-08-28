@@ -2,9 +2,11 @@
 
 Lexicon identifies events and aggregates in storage by the *logical names*
 you assign with `@DomainEvent("...")` and `@EventStream("...")` — never by
-the Java class name. Every row in the `event_streams` table stores the
-logical name in `event_type`, and every query for an aggregate's history
-filters on the logical name in `aggregate_type`:
+the Java class name. Every stored event row keeps the logical name in its
+`eventType` column, and every query for an aggregate's history filters on
+the logical name in its `aggregateType` column (see
+[Database schema](04-database-schema.md) for the exact table/column names,
+which depend on your configured naming strategy):
 
 ```java
 @DomainEvent("vehicle-registered")
@@ -36,11 +38,11 @@ public record VehicleWasRegistered(String licensePlate, String ownerId) {
 ```
 
 **Changing the logical name is not safe** once events with the old name
-have been persisted. `DomainEventRegistry` resolves each stored
-`event_type` to exactly one class, using whatever logical name is currently
+have been persisted. `DomainEventRegistry` resolves each stored `eventType`
+value to exactly one class, using whatever logical name is currently
 declared in code. If you change `@DomainEvent("vehicle-registered")` to
 `@DomainEvent("vehicle-registered-v2")`, every previously stored event with
-`event_type = 'vehicle-registered'` becomes unresolvable, and loading any
+`eventType = 'vehicle-registered'` becomes unresolvable, and loading any
 aggregate with that history in it throws `UnknownDomainEventTypeException`.
 
 Logical names must also stay unique across your whole application — the
@@ -50,12 +52,14 @@ classes share a name either.
 
 If you genuinely need to correct a logical name (e.g. a typo shipped to
 production), the only way to do it without losing history is a manual data
-migration that rewrites the stored value directly:
+migration that rewrites the stored value directly. Substitute your actual
+table and column names (see [Database schema](04-database-schema.md)) —
+this example assumes the default naming:
 
 ```sql
-UPDATE event_streams
-SET event_type = 'vehicle-registered'
-WHERE event_type = 'vehicle-registerd';
+UPDATE EventRecord
+SET eventType = 'vehicle-registered'
+WHERE eventType = 'vehicle-registerd';
 ```
 
 Run this once, then update the `@DomainEvent` annotation in code to match.
@@ -151,7 +155,7 @@ you've migrated old history), you can remove the old class and its handler.
 
 The same rule applies here as with events: **renaming the aggregate's Java
 class is safe**, since the class name is never stored — only the
-`@EventStream` value is, in `aggregate_type`. Rename `Vehicle` to
+`@EventStream` value is, in the `aggregateType` column. Rename `Vehicle` to
 `RegisteredVehicle` freely as long as `@EventStream("vehicle")` stays the
 same.
 
@@ -166,12 +170,14 @@ are actually still in the database, just under the old type name.
 the build fails with `Duplicate event stream name` if two aggregate classes
 declare the same value.
 
-If you must rename it anyway, migrate the stored value first:
+If you must rename it anyway, migrate the stored value first (again,
+substitute your actual table/column names — this assumes the default
+naming):
 
 ```sql
-UPDATE event_streams
-SET aggregate_type = 'registered-vehicle'
-WHERE aggregate_type = 'vehicle';
+UPDATE EventRecord
+SET aggregateType = 'registered-vehicle'
+WHERE aggregateType = 'vehicle';
 ```
 
 Then update `@EventStream` in code to match, in the same deployment as the

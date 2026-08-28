@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name="event_streams", indexes = {
-        @Index(name="idx_event_streams", columnList = "aggregate_id, version", unique = true),
+@Table(indexes = {
+        @Index(name="idx_event_streams", columnList = "aggregateId, version", unique = true),
 })
 @NamedQueries({
         @NamedQuery(
@@ -21,22 +21,23 @@ import java.util.List;
         )
 })
 public class EventRecord extends PanacheEntity {
-    @Column(name="aggregate_type", nullable=false, columnDefinition = "varchar(150)")
+    @Column(nullable=false, length=150)
     public String aggregateType;
 
-    @Column(name="aggregate_id", nullable=false, columnDefinition = "varchar(40)")
+    @Column(nullable=false, length=40)
     public String aggregateId;
 
-    @Column(name="event_type", nullable = false, columnDefinition = "varchar(150)")
+    @Column(nullable = false, length=150)
     public String eventType;
 
-    @Column(name="version",nullable = false, columnDefinition = "bigint")
+    @Column(nullable = false)
     public Long version;
 
-    @Column(name="event_data",nullable = false, columnDefinition = "text")
+    @Lob
+    @Column(nullable = false)
     public String eventData;
 
-    @Column(name="timestamp",nullable = false, columnDefinition = "timestamp")
+    @Column(nullable = false)
     public LocalDateTime timestamp;
 
     public static long nextVersion(String aggregateType, String aggregateId) {
