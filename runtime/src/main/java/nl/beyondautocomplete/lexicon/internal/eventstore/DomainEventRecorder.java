@@ -1,4 +1,4 @@
-package nl.beyondautocomplete.lexicon;
+package nl.beyondautocomplete.lexicon.internal.eventstore;
 
 import io.quarkus.runtime.annotations.Recorder;
 

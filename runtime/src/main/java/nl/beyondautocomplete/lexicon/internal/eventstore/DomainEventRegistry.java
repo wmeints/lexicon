@@ -1,4 +1,6 @@
-package nl.beyondautocomplete.lexicon;
+package nl.beyondautocomplete.lexicon.internal.eventstore;
+
+import nl.beyondautocomplete.lexicon.UnknownDomainEventTypeException;
 
 import java.util.HashMap;
 import java.util.List;

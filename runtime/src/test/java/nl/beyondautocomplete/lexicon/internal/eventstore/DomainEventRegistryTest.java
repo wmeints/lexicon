@@ -1,5 +1,7 @@
-package nl.beyondautocomplete.lexicon;
+package nl.beyondautocomplete.lexicon.internal.eventstore;
 
+import nl.beyondautocomplete.lexicon.DomainEvent;
+import nl.beyondautocomplete.lexicon.UnknownDomainEventTypeException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

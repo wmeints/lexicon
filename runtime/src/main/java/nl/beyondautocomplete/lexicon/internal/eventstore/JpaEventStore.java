@@ -1,9 +1,12 @@
-package nl.beyondautocomplete.lexicon;
+package nl.beyondautocomplete.lexicon.internal.eventstore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import nl.beyondautocomplete.lexicon.DomainEventSerializationException;
+import nl.beyondautocomplete.lexicon.EventStore;
+import nl.beyondautocomplete.lexicon.OptimisticConcurrencyException;
 
 import java.time.LocalDateTime;
 import java.util.List;
