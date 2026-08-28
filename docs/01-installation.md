@@ -59,5 +59,4 @@ In your project's `pom.xml`, add the Lexicon GitHub Packages repository. The
 </dependency>
 ```
 
-New versions are published automatically whenever a change is merged into
-`main`.
+New versions are published automatically whenever a new tag is pushed for `main`.
