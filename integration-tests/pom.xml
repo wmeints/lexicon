@@ -11,6 +11,10 @@
     <artifactId>lexicon-integration-tests</artifactId>
     <name>Lexicon - Integration Tests</name>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>nl.beyondautocomplete</groupId>

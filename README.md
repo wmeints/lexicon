@@ -12,4 +12,5 @@ TODO: Describe how to get started
 - [Installation](docs/01-installation.md)
 - [Creating your first aggregate](docs/02-your-first-aggregate.md)
 - [Event versioning](docs/03-event-versioning.md)
+- [Releasing a new version](docs/04-releasing.md)
 
