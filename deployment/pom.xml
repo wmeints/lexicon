@@ -5,8 +5,9 @@
     <parent>
         <groupId>nl.beyondautocomplete</groupId>
         <artifactId>lexicon-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>lexicon-deployment</artifactId>
     <name>Lexicon - Deployment</name>
 
@@ -14,6 +15,14 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc-deployment</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jackson-deployment</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-orm-panache-deployment</artifactId>
         </dependency>
         <dependency>
             <groupId>nl.beyondautocomplete</groupId>
@@ -29,6 +38,9 @@
 
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
